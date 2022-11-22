@@ -11,6 +11,7 @@ const createSlot = async function (req, res) {
     try {
 
         let adminId = req.params.adminId
+        let userIdFromToken=req.userId
         let vaccineSlotDetails = req.body
 
         const { slotDate, slotTime, totalSlot } = vaccineSlotDetails;
@@ -36,6 +37,10 @@ const createSlot = async function (req, res) {
             return res.status(404).send({ status: false, message: "Admin Not found" })
         }
 
+        if (findAdmin._id.toString() != userIdFromToken) {
+            return res.status(403).send({ status: false, message: "You Are Not Authorized!!" });
+        }
+
         let createSlot = await slotModel.create(vaccineSlotDetails)
 
         return res.status(201).send({ status: true, message: "Slot created successfully", data: createSlot });
@@ -50,6 +55,23 @@ const adminGetUserdata = async function (req, res) {
     try {
 
         let doseType = req.query.doseType
+        let slotDate=req.query.slotDate
+        let adminId=req.params.adminId
+        let userIdFromToken=req.userId
+
+        if (!validator.isValidObjectId(adminId)) {
+            return res.status(400).send({ status: false, message: "Invalid Admin Id" })
+        }
+
+        const findAdmin = await userModel.findOne({ _id: adminId })
+
+        if (!findAdmin) {
+            return res.status(404).send({ status: false, message: "Admin Not found" })
+        }
+
+        if (findAdmin._id.toString() != userIdFromToken) {
+            return res.status(403).send({ status: false, message: "You Are Not Authorized!!" });
+        }
 
         if (!validator.isValid(doseType)) {
             return res.status(400).send({ status: false, message: 'Select Dose(First,Second)' })
@@ -59,7 +81,10 @@ const adminGetUserdata = async function (req, res) {
             return res.status(400).send({ status: false, message: 'chose First Or Second' })
         }
         
-        let userDetails= await slotBookModel.find({doseType}).populate('userId')
+        let userDetails= await slotBookModel.find({doseType,slotDate})
+        if(!userDetails.length){
+            return res.status(404).send({ status: false, message: 'No Data Found' }) 
+        }
 
     return res.status(200).send({ status: true, message: `Registered users for ${doseType} Dose `, data: userDetails })
 

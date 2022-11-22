@@ -14,7 +14,7 @@ router.put('/book/:userId',authentication,authorization,cancelBooking)
 
 /*for Admin */
 const {createSlot,adminGetUserdata}=require('../controllers/adminController')
-router.post('/slot',authentication,createSlot)
-router.get('/user',adminGetUserdata)
+router.post('/slot/:adminId',authentication,createSlot)
+router.get('/user/:adminId',authentication,adminGetUserdata)
 
 module.exports = router;
