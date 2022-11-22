@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 
 const mongoose = require('mongoose');
-mongoose.connect("mongodb+srv://Bhagaban:L2vSe5ZRZjoVfhOA@cluster0.ojbuh.mongodb.net/cowinclone",{
+mongoose.connect("mongodb+srv://Bhagaban:L2vSe5ZRZjoVfhOA@cluster0.ojbuh.mongodb.net/cowin-clone",{
     useNewUrlParser: true,
 })
 .then(()=>{

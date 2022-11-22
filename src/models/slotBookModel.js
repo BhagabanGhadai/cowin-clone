@@ -6,8 +6,8 @@ const bookSlotSchema = new mongoose.Schema(
      {  
         userId: {
             type: ObjectId,
-            required: true, 
-            refs: 'User'
+            refs: 'User',
+            required: true 
         },
         doseType: {
             type: String,

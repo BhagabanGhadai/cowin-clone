@@ -11,8 +11,7 @@ const getSlot = async function (req, res) {
 
         slotDetails.availableSlot = { $gt: 0 }
 
-        let availableSlots = await vaccineSlotModel.find(filter).select({ _id: 0, slotDate: 1, slotTime: 1, totalSlot: 1, bookedSlot: 1, availableSlot: 1 })
-
+        let availableSlots = await vaccineSlotModel.find(slotDetails).select({ _id: 0, slotDate: 1, slotTime: 1, totalSlot: 1, bookedSlot: 1, availableSlot: 1 })
         if (availableSlots && availableSlots.length === 0) {
             return res.status(404).send({ status: false, message: "No slot avaliable" })
         }
@@ -33,7 +32,7 @@ const slotBook = async function (req, res) {
         let userId = req.params.userId
         let slotDetails = req.body
 
-        const { doseType, slotDate, slotTime } = slotDetails
+        let { doseType, slotDate, slotTime } = slotDetails
 
         if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: "Invalid UserId" })
@@ -65,28 +64,30 @@ const slotBook = async function (req, res) {
             return res.status(400).send({ status: false, message: 'Select Time' })
         }
 
-        const getSlots = await vaccineSlotModel.findOne({ slotDate: slotDate, slotTime: slotTime })
+        const getSlots = await vaccineSlotModel.findOne(slotDetails)
         const availableSlot = getSlots.availableSlot
 
         if (availableSlot === 0) {
             return res.status(404).send({ status: false, message: "No Slots Available! Try Later" })
         }
 
-        let findBooking = await slotBookModel.findOne({ userId: userId, doseType: doseType });
-
+        let findBooking = await slotBookModel.findOne({ userId, doseType });
         if (!findBooking) {
             if (doseType == "Second") {
                 let checkForFirst = await slotBookModel.findOne({ userId: userId });
-
+                if(!checkForFirst){
+                    slotDetails.doseType="First"
+                }
                 if (checkForFirst && checkForFirst.status == "pending" && checkForFirst.doseType == "First") {
                     return res.status(400).send({ status: false, message: `${checkForFirst.doseType} Dose is Alloted to You ! please Go the nearest center on scheduled date` })
                 }
-
+                
                 if (checkForFirst && checkForFirst.status == "cancelled" && checkForFirst.doseType == "First") {
                     return res.status(400).send({ status: false, message: `${checkForFirst.doseType} Dose is cancelled please take ${checkForFirst.doseType} Dose first` })
                 }
             }
-
+            
+            slotDetails.userId=userId
             await slotBookModel.create(slotDetails)
         } else {
             if (findBooking && findBooking.status == "pending") {
@@ -165,7 +166,7 @@ const cancelBooking = async function (req, res) {
                 { $set: { bookedSlot: getSlots.bookedSlot - 1, availableSlot: getSlots.availableSlot + 1 } },
                 { new: true })
 
-            return res.status(200).send({ status: true, message: "slot updated successfully ", data: updatedBooking });
+            return res.status(200).send({ status: true, message: "slot cancelled successfully ", data: updatedBooking });
         }
 
     } catch (error) {

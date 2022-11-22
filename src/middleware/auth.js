@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const validator=require('../validation/validator')
 
 const authentication = function (req, res, next) {
 
@@ -32,11 +33,11 @@ const authorization = async function (req, res, next) {
     try {
         
         let userId = req.params.userId
-        let decodeToken = req.decodeToken
+        let decodeToken = req.userId
 
-        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "invalid user Id" })
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: "invalid user Id" })
        
-           if (decodeToken.userId == userId) 
+           if (decodeToken == userId) 
            next()
            else return res.status(403).send({ status: false, message: "unauthorized.You are not authorize to perform the action." })
 

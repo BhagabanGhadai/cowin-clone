@@ -63,7 +63,7 @@ const signUp = async function (req, res) {
         const hashedPassword = await bcrypt.hash(password, 10);
         userData.password = hashedPassword
 
-        let createUser = await userModel.create(saveData)
+        let createUser = await userModel.create(userData)
         return res.status(201).send({ status: true, message: "SignUp Successful", data: createUser });
 
     } catch (error) {
@@ -108,7 +108,7 @@ const login = async function (req, res) {
             return res.status(400).send({ status: false, message: "You have Entered Wrong Password" });
         }
 
-        let userId = checkedUser._id.toString()
+        let userId =findUserFromDB._id.toString()
         let token = jwt.sign({
             userId: userId,
             iat: Math.floor(Date.now() / 1000),

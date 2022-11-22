@@ -23,7 +23,7 @@ const validString = function (value) {
 }
 
 const isValidNumber= function (phoneNumber) {                                                              
-    return (/^(\+\d{1,3}[- ]?)?\d{10}$/).test(phoneNumber)
+    return /^(\+\d{1,3}[- ]?)?\d{10}$/.test(phoneNumber)
 };
 
 const isValidPincode=function (pincode){

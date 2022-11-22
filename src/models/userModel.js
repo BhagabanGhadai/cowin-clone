@@ -6,8 +6,8 @@ const userSchema = new mongoose.Schema(
            type:String,
            required:true
         },
-        PhoneNumber: {
-            type: String,
+        phoneNumber: {
+            type: Number,
             required:true,
             unique: true
         },
@@ -18,10 +18,9 @@ const userSchema = new mongoose.Schema(
         pincode: {
             type: Number,
             required: true,
-            unique: true
         },
         aadharNo:{
-            type: String,
+            type: Number,
             required: true
         },
         password: {

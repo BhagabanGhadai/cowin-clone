@@ -30,7 +30,7 @@ const createSlot = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid Admin Id" })
         }
 
-        const findAdmin = await userModel.findOne({ _id: userId })
+        const findAdmin = await userModel.findOne({ _id: adminId })
 
         if (!findAdmin) {
             return res.status(404).send({ status: false, message: "Admin Not found" })
@@ -49,17 +49,19 @@ const createSlot = async function (req, res) {
 const adminGetUserdata = async function (req, res) {
     try {
 
-        let filter = req.query
-        const {age,pincode,st}=filter
-       if(validator.isValid(filter.status)){
-        let registredUserVaccineStatus = await slotBookModel.find(filter.status)
-    }
-    let registredUser = await userModel.find(filter)
-       
-        if (avaliableSlot && avaliableSlot.length === 0)
-            return res.status(404).send({ status: false, message: "No slot avaliable" })
+        let doseType = req.query.doseType
 
-        return res.status(200).send({ status: true, message: "slot list accessed successfully", data: avaliableSlot })
+        if (!validator.isValid(doseType)) {
+            return res.status(400).send({ status: false, message: 'Select Dose(First,Second)' })
+        }
+
+        if (!["First", "Second"].includes(doseType)) {
+            return res.status(400).send({ status: false, message: 'chose First Or Second' })
+        }
+        
+        let userDetails= await slotBookModel.find({doseType}).populate('userId')
+
+    return res.status(200).send({ status: true, message: `Registered users for ${doseType} Dose `, data: userDetails })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -68,5 +70,5 @@ const adminGetUserdata = async function (req, res) {
 }
 
 
-module.exports= {createSlot}
+module.exports= {createSlot,adminGetUserdata}
 
